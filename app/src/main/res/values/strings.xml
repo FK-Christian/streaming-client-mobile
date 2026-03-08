@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">StreamLocal</string>
+    <string name="server_url_hint">https://192.168.1.100:8888</string>
+    <string name="server_url_label">URL du serveur</string>
+    <string name="trust_self_signed">Faire confiance aux certificats auto-signés</string>
+    <string name="test_and_continue">Tester &amp; Continuer</string>
+    <string name="pin_hint">Code PIN</string>
+    <string name="enter_btn">Entrer</string>
+    <string name="videos_tab">Vidéos</string>
+    <string name="photos_tab">Photos</string>
+    <string name="logout">Déconnexion</string>
+    <string name="search_hint">Rechercher…</string>
+    <string name="error_connection">Erreur de connexion</string>
+    <string name="error_invalid_code">Code invalide</string>
+    <string name="error_rate_limited">Trop de tentatives. Réessayez dans %1$d s</string>
+    <string name="testing_connection">Test de connexion…</string>
+    <string name="connection_success">Connexion réussie !</string>
+</resources>

@@ -1,0 +1,22 @@
+[
+    {
+        "merged": "C:\\Users\\fodou\\.gradle\\daemon\\9.0.0\\com.streamlocal.app-debug-63:\\xml_network_security_config.xml.flat",
+        "source": "C:\\Users\\fodou\\.gradle\\daemon\\9.0.0\\com.streamlocal.app-main-65:\\xml\\network_security_config.xml"
+    },
+    {
+        "merged": "com.streamlocal.app-debug-63:/drawable_logo_app.png.flat",
+        "source": "com.streamlocal.app-main-65:/drawable/logo_app.png"
+    },
+    {
+        "merged": "com.streamlocal.app-debug-63:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.streamlocal.app-main-65:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.streamlocal.app-debug-63:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.streamlocal.app-main-65:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.streamlocal.app-debug-63:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.streamlocal.app-main-65:/mipmap-anydpi-v26/ic_launcher.xml"
+    }
+]
