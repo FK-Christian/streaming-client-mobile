@@ -1,8 +1,14 @@
 package com.streamlocal.app.data.repository
 
+import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
 import com.streamlocal.app.data.api.NetworkClient
 import com.streamlocal.app.data.model.AuthRequest
 import com.streamlocal.app.data.model.MediaFile
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
  * Wrapper de résultat typé pour toutes les opérations du repository.
@@ -148,5 +154,44 @@ class MediaRepository {
     fun buildPhotoStreamUrl(baseUrl: String, path: String): String {
         val normalizedBase = if (baseUrl.endsWith("/")) baseUrl.dropLast(1) else baseUrl
         return "$normalizedBase/api/v1/stream/photo/$path"
+    }
+
+    // ── Upload ────────────────────────────────────────────────────────────────
+
+    /**
+     * Envoie un fichier image ou vidéo sélectionné par l'utilisateur au serveur.
+     *
+     * @param context Contexte Android pour accéder au [ContentResolver].
+     * @param uri     URI du fichier sélectionné via le sélecteur système.
+     * @return [Result.Success] avec le message de confirmation, ou [Result.Error].
+     */
+    suspend fun uploadFile(context: Context, uri: Uri): Result<String> {
+        return try {
+            val contentResolver = context.contentResolver
+            val mimeType = contentResolver.getType(uri) ?: "application/octet-stream"
+            val fileName = resolveFileName(context, uri) ?: "upload"
+
+            val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                ?: return Result.Error("Impossible d'ouvrir le fichier")
+
+            val requestBody = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
+            val part = MultipartBody.Part.createFormData("file", fileName, requestBody)
+
+            val response = api.uploadFile(part)
+            if (response.isSuccessful) {
+                Result.Success(response.body()?.msg ?: "Fichier envoyé avec succès")
+            } else {
+                Result.Error("Erreur serveur: ${response.code()}", response.code())
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Erreur lors de l'envoi")
+        }
+    }
+
+    private fun resolveFileName(context: Context, uri: Uri): String? {
+        return context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val idx = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (cursor.moveToFirst() && idx >= 0) cursor.getString(idx) else null
+        }
     }
 }

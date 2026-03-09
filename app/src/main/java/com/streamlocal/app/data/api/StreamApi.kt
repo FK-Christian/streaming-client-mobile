@@ -4,11 +4,15 @@ import com.streamlocal.app.data.model.AuthRequest
 import com.streamlocal.app.data.model.AuthResponse
 import com.streamlocal.app.data.model.MediaFile
 import com.streamlocal.app.data.model.PhotoInfo
+import com.streamlocal.app.data.model.UploadResponse
 import com.streamlocal.app.data.model.VideoInfo
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 
 /**
@@ -82,4 +86,16 @@ interface StreamApi {
      */
     @GET("api/v1/info/photo/{path}")
     suspend fun getPhotoInfo(@Path("path", encoded = true) path: String): Response<PhotoInfo>
+
+    /**
+     * Envoie un fichier image ou vidéo au serveur.
+     *
+     * POST /api/v1/upload
+     * Corps : multipart/form-data avec le champ "file".
+     * Retour 200 : { "ok": true, "msg": "..." }
+     * Retour 400 : fichier manquant ou type non supporté.
+     */
+    @Multipart
+    @POST("api/v1/upload")
+    suspend fun uploadFile(@Part file: MultipartBody.Part): Response<UploadResponse>
 }

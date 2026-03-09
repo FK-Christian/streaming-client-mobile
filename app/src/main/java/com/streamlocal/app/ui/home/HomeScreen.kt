@@ -1,5 +1,10 @@
 package com.streamlocal.app.ui.home
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,15 +23,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Upload
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -43,6 +52,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -66,6 +76,14 @@ fun HomeScreen(
     viewModel:    HomeViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    // File picker: accepts images and videos
+    val uploadLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let { viewModel.uploadFile(context.applicationContext, it) }
+    }
 
     LaunchedEffect(uiState.isLoggedOut) {
         if (uiState.isLoggedOut) {
@@ -94,6 +112,24 @@ fun HomeScreen(
                 color = Primary
             )
             Row {
+                IconButton(
+                    onClick  = { uploadLauncher.launch(arrayOf("image/*", "video/*")) },
+                    enabled  = !uiState.isUploading
+                ) {
+                    if (uiState.isUploading) {
+                        CircularProgressIndicator(
+                            modifier    = Modifier.size(20.dp),
+                            color       = Primary,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Icon(
+                            imageVector        = Icons.Default.Upload,
+                            contentDescription = "Envoyer un fichier",
+                            tint               = Primary
+                        )
+                    }
+                }
                 IconButton(onClick = { viewModel.refresh() }) {
                     Icon(
                         imageVector        = Icons.Default.Refresh,
@@ -108,6 +144,50 @@ fun HomeScreen(
                         tint               = TextSecondary
                     )
                 }
+            }
+        }
+
+        // Upload progress bar
+        AnimatedVisibility(visible = uiState.isUploading) {
+            LinearProgressIndicator(
+                modifier = Modifier.fillMaxWidth(),
+                color    = Primary
+            )
+        }
+
+        // Upload success / error message
+        AnimatedVisibility(
+            visible = uiState.uploadMessage != null || uiState.uploadError != null,
+            enter   = fadeIn(),
+            exit    = fadeOut()
+        ) {
+            val isError = uiState.uploadError != null
+            val message = uiState.uploadMessage ?: uiState.uploadError ?: ""
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                    .background(
+                        if (isError) Error.copy(alpha = 0.12f) else Primary.copy(alpha = 0.12f),
+                        RoundedCornerShape(8.dp)
+                    )
+                    .clickable { viewModel.clearUploadStatus() }
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalAlignment     = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector        = if (isError) Icons.Default.Warning else Icons.Default.CheckCircle,
+                    contentDescription = null,
+                    tint               = if (isError) Error else Primary,
+                    modifier           = Modifier.size(16.dp)
+                )
+                Text(
+                    text     = message,
+                    style    = MaterialTheme.typography.bodySmall,
+                    color    = if (isError) Error else Primary,
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
 

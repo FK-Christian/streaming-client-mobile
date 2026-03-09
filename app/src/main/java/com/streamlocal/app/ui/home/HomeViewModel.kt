@@ -1,5 +1,7 @@
 package com.streamlocal.app.ui.home
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.streamlocal.app.StreamLocalApp
@@ -38,7 +40,10 @@ data class HomeUiState(
     val searchQuery:   String          = "",
     val serverUrl:     String          = "",
     val trustAllCerts: Boolean         = true,
-    val isLoggedOut:   Boolean         = false
+    val isLoggedOut:   Boolean         = false,
+    val isUploading:   Boolean         = false,
+    val uploadMessage: String?         = null,
+    val uploadError:   String?         = null
 )
 
 /**
@@ -138,6 +143,42 @@ class HomeViewModel : ViewModel() {
      */
     fun resetLoggedOut() {
         _uiState.value = _uiState.value.copy(isLoggedOut = false)
+    }
+
+    /**
+     * Envoie un fichier image ou vidéo au serveur, puis rafraîchit la liste.
+     *
+     * @param context Contexte Android (application context recommandé).
+     * @param uri     URI du fichier sélectionné via le sélecteur système.
+     */
+    fun uploadFile(context: Context, uri: Uri) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isUploading   = true,
+                uploadMessage = null,
+                uploadError   = null
+            )
+            when (val result = repository.uploadFile(context, uri)) {
+                is Result.Success -> {
+                    _uiState.value = _uiState.value.copy(
+                        isUploading   = false,
+                        uploadMessage = result.data
+                    )
+                    loadCurrentTab()
+                }
+                is Result.Error -> {
+                    _uiState.value = _uiState.value.copy(
+                        isUploading = false,
+                        uploadError = result.message
+                    )
+                }
+            }
+        }
+    }
+
+    /** Efface les messages d'état de l'upload. */
+    fun clearUploadStatus() {
+        _uiState.value = _uiState.value.copy(uploadMessage = null, uploadError = null)
     }
 
     /**

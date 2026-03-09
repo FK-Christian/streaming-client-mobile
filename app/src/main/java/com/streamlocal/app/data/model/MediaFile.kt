@@ -79,3 +79,14 @@ data class PhotoInfo(
     @SerializedName("width")  val width: Int     = 0,
     @SerializedName("height") val height: Int    = 0
 )
+
+/**
+ * Réponse du serveur après l'envoi d'un fichier via POST `/api/v1/upload`.
+ *
+ * @property ok  true si l'upload a réussi.
+ * @property msg Message de confirmation ou d'erreur retourné par le serveur.
+ */
+data class UploadResponse(
+    @SerializedName("ok")  val ok: Boolean,
+    @SerializedName("msg") val msg: String? = null
+)
