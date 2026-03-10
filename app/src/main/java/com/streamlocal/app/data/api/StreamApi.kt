@@ -88,14 +88,26 @@ interface StreamApi {
     suspend fun getPhotoInfo(@Path("path", encoded = true) path: String): Response<PhotoInfo>
 
     /**
-     * Envoie un fichier image ou vidéo au serveur.
+     * Envoie une vidéo au serveur.
      *
-     * POST /api/v1/upload
+     * POST /api/v1/upload/video
      * Corps : multipart/form-data avec le champ "file".
-     * Retour 200 : { "ok": true, "msg": "..." }
-     * Retour 400 : fichier manquant ou type non supporté.
+     * Retour 200 : { "ok": true, "filename": "...", "dest": "..." }
+     * Retour 400 : fichier manquant ou extension non autorisée.
      */
     @Multipart
-    @POST("api/v1/upload")
-    suspend fun uploadFile(@Part file: MultipartBody.Part): Response<UploadResponse>
+    @POST("api/v1/upload/video")
+    suspend fun uploadVideo(@Part file: MultipartBody.Part): Response<UploadResponse>
+
+    /**
+     * Envoie une photo au serveur.
+     *
+     * POST /api/v1/upload/photo
+     * Corps : multipart/form-data avec le champ "file".
+     * Retour 200 : { "ok": true, "filename": "...", "dest": "..." }
+     * Retour 400 : fichier manquant ou extension non autorisée.
+     */
+    @Multipart
+    @POST("api/v1/upload/photo")
+    suspend fun uploadPhoto(@Part file: MultipartBody.Part): Response<UploadResponse>
 }

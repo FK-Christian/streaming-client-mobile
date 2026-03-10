@@ -177,9 +177,16 @@ class MediaRepository {
             val requestBody = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
             val part = MultipartBody.Part.createFormData("file", fileName, requestBody)
 
-            val response = api.uploadFile(part)
+            val response = if (mimeType.startsWith("video/")) {
+                api.uploadVideo(part)
+            } else {
+                api.uploadPhoto(part)
+            }
+
             if (response.isSuccessful) {
-                Result.Success(response.body()?.msg ?: "Fichier envoyé avec succès")
+                val body = response.body()
+                val msg = body?.filename?.let { "Fichier envoyé : $it" } ?: "Fichier envoyé avec succès"
+                Result.Success(msg)
             } else {
                 Result.Error("Erreur serveur: ${response.code()}", response.code())
             }

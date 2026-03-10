@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "mcp__ide__getDiagnostics",
-      "Bash(./gradlew assembleDebug:*)"
+      "Bash(./gradlew assembleDebug:*)",
+      "Bash(find \"/c/Users/fodou/Downloads/Streaming/StreamLocalApp/app\" -name \"*.kt\" | xargs grep -l -i \"upload\" 2>/dev/null)"
     ]
   }
 }

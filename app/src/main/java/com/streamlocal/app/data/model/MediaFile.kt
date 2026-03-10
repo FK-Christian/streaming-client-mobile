@@ -81,12 +81,14 @@ data class PhotoInfo(
 )
 
 /**
- * Réponse du serveur après l'envoi d'un fichier via POST `/api/v1/upload`.
+ * Réponse du serveur après l'envoi d'un fichier via POST `/api/v1/upload/video` ou `/api/v1/upload/photo`.
  *
- * @property ok  true si l'upload a réussi.
- * @property msg Message de confirmation ou d'erreur retourné par le serveur.
+ * @property ok       true si l'upload a réussi.
+ * @property filename Nom du fichier enregistré sur le serveur.
+ * @property dest     Dossier de destination sur le serveur.
  */
 data class UploadResponse(
-    @SerializedName("ok")  val ok: Boolean,
-    @SerializedName("msg") val msg: String? = null
+    @SerializedName("ok")       val ok: Boolean,
+    @SerializedName("filename") val filename: String? = null,
+    @SerializedName("dest")     val dest: String? = null
 )
